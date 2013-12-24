@@ -40,14 +40,16 @@ void loop(void)
       while (!done)
       {
         done = radio.read( ptr, sizeof(byte[32]) );
-
+        Serial.println(ptr[1]);
 	// Delay just a little bit to let the other unit
 	// make the transition to receiver
 	delay(20);
       }
       runCommand(ptr);
       Serial.println(ptr[3]);
+      radio.stopListening();
       radio.write(ptr, sizeof(byte[32]));
+      radio.startListening();
     }
 
 }
