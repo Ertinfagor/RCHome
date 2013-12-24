@@ -31,40 +31,60 @@ void setup(void)
 void loop(void)
 {
   byte command[32] ;
+  byte *ptr;
+  ptr = &command[0];
   if ( radio.available() )
     {
      
       bool done = false;
       while (!done)
       {
-        done = radio.read( &command, sizeof(byte[32]) );
+        done = radio.read( ptr, sizeof(byte[32]) );
 
 	// Delay just a little bit to let the other unit
 	// make the transition to receiver
 	delay(20);
       }
-      runCommand(command[1],command[2]);
+      runCommand(ptr);
+      Serial.println(ptr[3]);
+      radio.write(ptr, sizeof(byte[32]));
     }
 
 }
-bool runCommand(byte command, byte parameter)
+bool runCommand(byte *ptr)
 {
-  Serial.println(command);
-  switch (command)
+  Serial.println(ptr[1]);
+  Serial.println(ptr[2]);
+  Serial.println(ptr[3]);
+  switch (ptr[1])
   {
     case 0:
       break;
     case 1:
-      switchOnLight(parameter);
+      if (ptr[3]== 0x00)
+      {
+        switchOnLight(ptr);
+      }
       break;
     case 2:
-      switchOffLight(parameter);
+      if (ptr[3]== 0x00)
+      {
+        switchOffLight(ptr);
+      }
       break;
   }
 
 }
+
 byte readTemp(void){}
 byte readHum(void){}
 byte readLight(void){}
-bool switchOnLight(byte number){digitalWrite(led, HIGH);}
-bool switchOffLight(byte number){digitalWrite(led, LOW);}
+bool switchOnLight(byte* ptr)
+{
+  digitalWrite(led, HIGH);
+  ptr[3] = 0xFF;
+}
+bool switchOffLight(byte* ptr){
+  digitalWrite(led, LOW);
+  ptr[3] = 0xFF;
+}
