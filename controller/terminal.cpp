@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
-
-#include "../RF24/librf24-rpi/librf24/RF24.h"
+#include <stdio.h>
+#include "./librf24/RF24.h"
 
 RF24 radio("/dev/spidev0.0",8000000 , 25); 
 const int role_pin = 7;
@@ -16,39 +16,40 @@ void setup(void)
 	radio.openReadingPipe(1,pipes[1]);
 	radio.startListening();
 	radio.printDetails();
+
 }
 void loop(char i)
 {
-	 radio.stopListening();
+radio.stopListening();
 char send[4] = {0x1,i,0,0};
 bool ok = radio.write( &send, sizeof(int[32]) );
- if (ok)
-      printf("ok\n\r");
-    else
-      printf("failed.\n\r");
- radio.startListening();
+if (!ok){
+	fprintf(stderr, "transmit failed\n\r");
+	__msleep(10);
+}
+else{
+ 	radio.startListening();
+ 	unsigned long started_waiting_at = __millis();
+ 	bool timeout = false;
+ 	while ( ! radio.available() && ! timeout ) {
+ 		__msleep(5);
+ 		if (__millis() - started_waiting_at > 200 )
+		{
+      			timeout = true;
+		}
+ 	}
 
-    unsigned long started_waiting_at = __millis();
-    bool timeout = false;
-    while ( ! radio.available() && ! timeout ) {
-     __msleep(5);
-   if (__millis() - started_waiting_at > 200 )
-	{
-      timeout = true;
-	}
-    }
-
- if ( timeout )
-    {
-      printf("Failed, response timed out.\n\r");
-    }
-    else
-    {
-      char recieve[32]; 
-      radio.read( &recieve, sizeof(char[32]) );
-      printf("%x\r\n",recieve[3]);
-    }
-
+ 	if ( timeout )
+    	{
+      		fprintf(stderr, "Failed, response timed out.\n\r");
+    	}
+    	else
+    	{
+      		char recieve[32];
+      		radio.read( &recieve, sizeof(char[32]) );
+      		fprintf(stdout, "%x\r\n",recieve[3]);
+    	}
+}
 
 
 }
