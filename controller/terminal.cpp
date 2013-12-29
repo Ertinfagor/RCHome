@@ -15,7 +15,7 @@ void setup(void)
 	radio.openWritingPipe(pipes[0]);
 	radio.openReadingPipe(1,pipes[1]);
 	radio.startListening();
-	radio.printDetails();
+	//radio.printDetails();
 
 }
 void loop(char i)
@@ -24,7 +24,8 @@ radio.stopListening();
 char send[4] = {0x1,i,0,0};
 bool ok = radio.write( &send, sizeof(int[32]) );
 if (!ok){
-	fprintf(stderr, "transmit failed\n\r");
+	fprintf(stderr, "Transmit failed\n");
+	fflush(stdout);
 	__msleep(10);
 }
 else{
@@ -41,13 +42,16 @@ else{
 
  	if ( timeout )
     	{
-      		fprintf(stderr, "Failed, response timed out.\n\r");
+      		fprintf(stderr, "Failed, response timed out.\n");
+		fflush(stdout);
+
     	}
     	else
     	{
       		char recieve[32];
       		radio.read( &recieve, sizeof(char[32]) );
-      		fprintf(stdout, "%x\r\n",recieve[3]);
+    		fflush(stdout);
+		fprintf(stdout, "%x\n",recieve[3]);
     	}
 }
 
@@ -57,11 +61,11 @@ int main(int argc, char** argv)
 {
         char i;
 	setup();
-        while(1)
-		{
+     //   while(1)
+//		{
 		scanf("%x", &i);
 		loop(i);
-		}
+//		}
         return 0;
 }
 
