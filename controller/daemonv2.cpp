@@ -22,11 +22,11 @@ void initRF24(void){
         radio.startListening();
 }
 
-int sendCommand(int* input, FILE* fp){
+int sendCommand(char* input, FILE* fp){
 	bool timeout = false;
 
 	radio.stopListening();
-	bool ok = radio.write( input, sizeof(int[32]) );
+	bool ok = radio.write( input, sizeof(char[32]) );
 	if (!ok){
         	input[12] = 1;
 		__msleep(10);
@@ -54,7 +54,7 @@ int sendCommand(int* input, FILE* fp){
         }
         else
         {
-                radio.read( input, sizeof(int[32]) );
+                radio.read( input, sizeof(char[32]) );
                 return 0;
         }
 
@@ -100,18 +100,17 @@ close(STDERR_FILENO);
 // Open a log file in write mode.
 fp = fopen ("Log.txt", "a+");
 initRF24();
-int input[32];
-int *ptrInput = &input[0];
-char* test = (char*)ptrInput;
+char input[32];
+char * ptrInput = &input[0];
 fputs("init\n",fp);
 fflush(fp);
 while (1)
 {
 //Dont block context switches, let the process sleep for some time
 	sleep(1);
-	if ( fgets ((char*)ptrInput , 32 , fp) != NULL ){
-		sendCommand(ptrInput, fp);
-		fputs(test,fp);
+	if ( fgets (&input[0] , 32 , fp) != NULL ){
+		sendCommand(&input[0], fp);
+		fputs(input,fp);
 		fflush(fp);
 	}
 
