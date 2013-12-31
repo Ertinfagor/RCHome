@@ -12,7 +12,6 @@ void setup(void)
   Serial.begin(57600);
 
   radio.begin();
-  //radio.setChannel(0x4b);
   radio.setAutoAck(false);
   radio.setRetries(15,15);
   radio.setPALevel(RF24_PA_MAX);
@@ -30,8 +29,8 @@ void setup(void)
 
 void loop(void)
 {
-  byte command[32] ;
-  byte *ptr;
+  char command[32] ;
+  char *ptr;
   ptr = &command[0];
   if ( radio.available() )
     {
@@ -39,37 +38,32 @@ void loop(void)
       bool done = false;
       while (!done)
       {
-        done = radio.read( ptr, sizeof(byte[32]) );
-        Serial.println(ptr[1]);
-	// Delay just a little bit to let the other unit
-	// make the transition to receiver
-	delay(20);
+        done = radio.read( ptr, sizeof(char[32]) );
+        delay(20);
       }
       runCommand(ptr);
-      Serial.println(ptr[3]);
+      Serial.println(ptr[12]);
+      
       radio.stopListening();
       radio.write(ptr, sizeof(byte[32]));
       radio.startListening();
     }
 
 }
-bool runCommand(byte *ptr)
+void runCommand(char *ptr)
 {
-  Serial.println(ptr[1]);
-  Serial.println(ptr[2]);
-  Serial.println(ptr[3]);
-  switch (ptr[1])
+  Serial.println(ptr[10]);
+  switch (ptr[10])
   {
     case 0:
       break;
     case 1:
-      if (ptr[3]== 0x00)
-      {
+      if (ptr[12]== 0x00){
         switchOnLight(ptr);
       }
       break;
     case 2:
-      if (ptr[3]== 0x00)
+      if (ptr[12]== 0x00)
       {
         switchOffLight(ptr);
       }
@@ -77,16 +71,33 @@ bool runCommand(byte *ptr)
   }
 
 }
+void readAllSensors(char* ptr){
+  readTemp(ptr);
+  readHum(ptr);
+  readLum(ptr);
+  
+}
+void readTemp(char* ptr){
+  ptr[12] = 0xFF;
+  ptr[13] = 0x02;
+}
+void readHum(char* ptr){
+  ptr[12] = 0xFF;
+  ptr[14] = 0x03;
+}
+void readLum(char* ptr){
+  ptr[12] = 0xFF;
+  ptr[15] = 0xFF;
 
-byte readTemp(void){}
-byte readHum(void){}
-byte readLight(void){}
-bool switchOnLight(byte* ptr)
+}
+void switchOnLight(char* ptr)
 {
   digitalWrite(led, HIGH);
-  ptr[3] = 0xFF;
+  ptr[12] = 0xFF;
+  ptr[16] = 0xFF;
 }
-bool switchOffLight(byte* ptr){
+bool switchOffLight(char* ptr){
   digitalWrite(led, LOW);
-  ptr[3] = 0xFF;
+  ptr[12] = 0xFF;
+  ptr[16] = 0xFF;
 }
