@@ -63,7 +63,8 @@ while (1)
 	sleep(1);
 	if ( fgets (input , 32 , fp) != NULL ){
 		runCommand(input);
-		fputs("test\n",fp);
+		fputs(input,fp);
+		fflush(fp);
 	}
 
 }
