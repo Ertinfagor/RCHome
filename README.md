@@ -1,8 +1,8 @@
 SensorBoard
 ===========
 
-Arduino Sensor Board with nRF24l01 Control
-
+Arduino Sensor Board with nRF24l01+ Control
+Raspberry Pi Control Board with nRF24l01+
 The board based on AVR microcontroller with Arduino bootloader.
 
 SensorBoard will transmit/recieve data from/to SmartHome Controller with nRF24l01 (Repo will be added)
