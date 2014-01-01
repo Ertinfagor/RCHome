@@ -21,8 +21,13 @@ void setup(void)
 void loop(char i)
 {
 radio.stopListening();
-char send[4] = {0x1,i,0,0};
+char send[32] = {0x1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,i,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 bool ok = radio.write( &send, sizeof(int[32]) );
+for (int j = 0 ; j < 32; j++){
+                        fprintf(stdout, "%x ",send[j]);
+                }
+                fprintf(stdout, "\n");
+
 if (!ok){
 	fprintf(stderr, "Transmit failed\n");
 	fflush(stdout);
@@ -51,7 +56,10 @@ else{
       		char recieve[32];
       		radio.read( &recieve, sizeof(char[32]) );
     		fflush(stdout);
-		fprintf(stdout, "%x\n",recieve[3]);
+		for (int j = 0 ; j < 32; j++){
+			fprintf(stdout, "%x ",recieve[j]);
+		}
+		fprintf(stdout, "\n");
     	}
 }
 
