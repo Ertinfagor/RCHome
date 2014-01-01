@@ -100,7 +100,7 @@ close(STDERR_FILENO);
 // Open a log file in write mode.
 fp = fopen ("Log.txt", "a+");
 initRF24();
-char input[32];
+char input[32] = {pipes[0],pipes[1],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 char * ptrInput = &input[0];
 fputs("init\n",fp);
 fflush(fp);
