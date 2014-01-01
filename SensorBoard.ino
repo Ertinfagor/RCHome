@@ -7,6 +7,8 @@ RF24 radio(9,10);
 const uint64_t pipes[2] = { 0xF0F0F0F001LL, 0xF0F0F0F002LL };
 const byte shortAddr = 0x02;
 int led = 13;
+char switchStatus = 0;
+char lampStatus = 0;
 void setup(void)
 {
   Serial.begin(57600);
@@ -58,16 +60,12 @@ void runCommand(char *ptr)
     case 0:
       break;
     case 1:
+    {
       if (ptr[12]== 0x00){
-        switchOnLight(ptr);
+        switchLight(ptr);
       }
       break;
-    case 2:
-      if (ptr[12]== 0x00)
-      {
-        switchOffLight(ptr);
-      }
-      break;
+    }
   }
 
 }
@@ -75,6 +73,8 @@ void readAllSensors(char* ptr){
   readTemp(ptr);
   readHum(ptr);
   readLum(ptr);
+  readSwitch(ptr);
+  readLamp(ptr);
   
 }
 void readTemp(char* ptr){
@@ -90,14 +90,28 @@ void readLum(char* ptr){
   ptr[15] = 0xFF;
 
 }
-void switchOnLight(char* ptr)
+
+void readSwitch(char* ptr){
+  ptr[12] = 0xFF;
+  ptr[15] = switchStatus;
+
+}
+
+void readLamp(char* ptr){
+  ptr[12] = 0xFF;
+  ptr[15] = lampStatus;
+
+}
+
+void switchLight(char* ptr)
 {
-  digitalWrite(led, HIGH);
+  lampStatus = ptr[16];
+  if(lampStatus == 0xFF){
+    digitalWrite(led, HIGH);
+  }
+  else{
+    digitalWrite(led, LOW);
+  }
   ptr[12] = 0xFF;
-  ptr[16] = 0xFF;
 }
-bool switchOffLight(char* ptr){
-  digitalWrite(led, LOW);
-  ptr[12] = 0xFF;
-  ptr[16] = 0xFF;
-}
+
