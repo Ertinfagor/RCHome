@@ -7,8 +7,9 @@ RF24 radio(9,10);
 const uint64_t pipes[2] = { 0xF0F0F0F001LL, 0xF0F0F0F002LL };
 const byte shortAddr = 0x02;
 int led = 13;
-char switchStatus = 0;
-char lampStatus = 0;
+byte lampStatus = 0;
+byte switchStatus = 0;
+
 void setup(void)
 {
   Serial.begin(57600);
@@ -31,20 +32,19 @@ void setup(void)
 
 void loop(void)
 {
-  char command[32] ;
-  char *ptr;
-  ptr = &command[0];
+  byte command[32] ;
+  byte *ptr = &command[0];
   if ( radio.available() )
     {
      
       bool done = false;
       while (!done)
       {
-        done = radio.read( ptr, sizeof(char[32]) );
+        done = radio.read( ptr, sizeof(byte[32]) );
         delay(20);
       }
       runCommand(ptr);
-      Serial.println(ptr[12]);
+      //Serial.println(ptr[12]);
       
       radio.stopListening();
       radio.write(ptr, sizeof(byte[32]));
@@ -52,13 +52,16 @@ void loop(void)
     }
 
 }
-void runCommand(char *ptr)
+void runCommand(byte *ptr)
 {
-  Serial.println(ptr[10]);
+  //Serial.println(ptr[10]);
   switch (ptr[10])
   {
     case 0:
+    {
+      readAllSensors(ptr);  
       break;
+    }
     case 1:
     {
       if (ptr[12]== 0x00){
@@ -69,7 +72,7 @@ void runCommand(char *ptr)
   }
 
 }
-void readAllSensors(char* ptr){
+void readAllSensors(byte* ptr){
   readTemp(ptr);
   readHum(ptr);
   readLum(ptr);
@@ -77,33 +80,34 @@ void readAllSensors(char* ptr){
   readLamp(ptr);
   
 }
-void readTemp(char* ptr){
+void readTemp(byte* ptr){
   ptr[12] = 0xFF;
   ptr[13] = 0x02;
 }
-void readHum(char* ptr){
+void readHum(byte* ptr){
   ptr[12] = 0xFF;
   ptr[14] = 0x03;
 }
-void readLum(char* ptr){
+void readLum(byte* ptr){
   ptr[12] = 0xFF;
-  ptr[15] = 0xFF;
+  ptr[15] = 0x05;
 
 }
 
-void readSwitch(char* ptr){
+void readLamp(byte* ptr){
   ptr[12] = 0xFF;
-  ptr[15] = switchStatus;
+  ptr[16] = lampStatus;
+
+}
+void readSwitch(byte* ptr){
+  ptr[12] = 0xFF;
+  ptr[17] = switchStatus;
 
 }
 
-void readLamp(char* ptr){
-  ptr[12] = 0xFF;
-  ptr[15] = lampStatus;
 
-}
 
-void switchLight(char* ptr)
+void switchLight(byte* ptr)
 {
   lampStatus = ptr[16];
   if(lampStatus == 0xFF){
