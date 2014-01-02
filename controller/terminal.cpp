@@ -57,7 +57,7 @@ else{
       		radio.read( &recieve, sizeof(char[32]) );
     		fflush(stdout);
 		for (int j = 0 ; j < 32; j++){
-			fprintf(stdout, "%x ",recieve[j]);
+			fprintf(stdout, "%x",recieve[j]);
 		}
 		fprintf(stdout, "\n");
     	}

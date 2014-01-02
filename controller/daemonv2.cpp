@@ -24,7 +24,6 @@ void initRF24(void){
 
 int sendCommand(char* input, FILE* fp){
 	bool timeout = false;
-
 	radio.stopListening();
 	bool ok = radio.write( input, sizeof(char[32]) );
 	if (!ok){
@@ -100,20 +99,41 @@ close(STDERR_FILENO);
 // Open a log file in write mode.
 fp = fopen ("Log.txt", "a+");
 initRF24();
-char input[32] = {pipes[0],pipes[1],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+char input[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int inputtest[32];
+//char input2[32] = {pipes[0],pipes[1],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
 char * ptrInput = &input[0];
 fputs("init\n",fp);
 fflush(fp);
 while (1)
 {
 //Dont block context switches, let the process sleep for some time
-	sleep(1);
-	if ( fgets (&input[0] , 32 , fp) != NULL ){
-		sendCommand(&input[0], fp);
-		fputs(input,fp);
-		fflush(fp);
-	}
+	sleep(15);
+/*	if ( fread (ptrInput, sizeof(char[32]) , 32 , fp) != 0 ){
+		int i=0;
+   		int num;
+    		while(fscanf(fp, "%x", &num) > 0) {
+        	input[i] = num;
+        	i++;
+    		}*/
+		 if ( fread (&inputtest[0], sizeof(int[32]) , 32 , fp) != 0 ){
 
+		for(int i =0; i<32;i++){
+                       fprintf(fp,"%x",input[i]);
+                }
+                fprintf(fp,"\n");
+
+		if(sendCommand(ptrInput, fp) == 0){
+		 for(int i =0; i<32;i++){
+                       fprintf(fp,"%x",input[i]);
+                }
+		fprintf(fp,"\n");}
+
+
+		fflush(fp);
+
+}
 }
 fclose(fp);
 return (0);
