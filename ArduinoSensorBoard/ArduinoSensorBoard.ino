@@ -44,7 +44,7 @@ void loop(void)
         delay(20);
       }
       runCommand(ptr);
-      //Serial.println(ptr[12]);
+      Serial.println(ptr[12]);
       
       radio.stopListening();
       radio.write(ptr, sizeof(byte[32]));
@@ -54,7 +54,7 @@ void loop(void)
 }
 void runCommand(byte *ptr)
 {
-  //Serial.println(ptr[10]);
+  Serial.println(ptr[10]);
   switch (ptr[10])
   {
     case 0:
