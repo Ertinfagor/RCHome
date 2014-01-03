@@ -100,40 +100,28 @@ close(STDERR_FILENO);
 fp = fopen ("Log.txt", "a+");
 initRF24();
 char input[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int inputtest[32];
-//char input2[32] = {pipes[0],pipes[1],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
 char * ptrInput = &input[0];
+int num;
 fputs("init\n",fp);
 fflush(fp);
+
 while (1)
 {
-//Dont block context switches, let the process sleep for some time
-	sleep(15);
-/*	if ( fread (ptrInput, sizeof(char[32]) , 32 , fp) != 0 ){
-		int i=0;
-   		int num;
-    		while(fscanf(fp, "%x", &num) > 0) {
+	sleep(1);
+	int i=0;
+   	while(fscanf(fp, "%x ", &num) > 0) {
         	input[i] = num;
         	i++;
-    		}*/
-		 if ( fread (&inputtest[0], sizeof(int[32]) , 32 , fp) != 0 ){
-
-		for(int i =0; i<32;i++){
-                       fprintf(fp,"%x",input[i]);
-                }
-                fprintf(fp,"\n");
-
+    	}
+	if ( i == 32 ){
 		if(sendCommand(ptrInput, fp) == 0){
-		 for(int i =0; i<32;i++){
-                       fprintf(fp,"%x",input[i]);
-                }
-		fprintf(fp,"\n");}
-
-
+	 		for(int i = 0; i < 32; i++){
+              			fprintf(fp,"%x ",input[i]);
+               		}
+			fprintf(fp,"\n");
+		}
 		fflush(fp);
-
-}
+	}
 }
 fclose(fp);
 return (0);

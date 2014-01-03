@@ -1,0 +1,6 @@
+#!/bin/bash
+
+make daemonv2
+pkill daemonv2
+rm /Log.txt
+./daemonv2
