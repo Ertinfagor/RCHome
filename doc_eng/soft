@@ -1,4 +1,4 @@
-SensorBoard
+ArduinoSensorBoard
 Firmware for arduino which provide reading sensors and controlling switches functionality and controlled throw nRF24l01+ with ControllerBoard
 Goals:
 	recive command from ControllerBoard(addres both Controller and sensor is static and can be changed fom serial connection)
@@ -6,7 +6,7 @@ Goals:
 	write switch relay
 	send result of command
 
-ControllerBorad
+Controller/driver
 	daemon in raspberry pi which provide interface from CotrollerInterface to NRF24l01+ tranciever
 Goals:
 	read from file a packet
@@ -14,5 +14,5 @@ Goals:
 	recive throw nRF24l01+ packet 
 	 write the packet to file
 
-ControllerInterface
+Controller/interface
 	script on python which form a packet and write result to db
