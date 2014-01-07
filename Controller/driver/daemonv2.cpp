@@ -10,25 +10,43 @@
 
 RF24 radio("/dev/spidev0.0",8000000 , 25);
 const int role_pin = 7;
-const uint64_t pipes[2] = { 0xF0F0F0F001LL, 0xF0F0F0F002LL };
+//const uint64_t pipes[2] = { 0xF0F0F0F001LL, 0xF0F0F0F002LL };
+const uint64_t pipes[1] = { 0xF0F0F0F001LL };
 
 void initRF24(void){
 	radio.begin();
         radio.setRetries(15,15);
         radio.setChannel(1);
         radio.setPALevel(RF24_PA_MAX);
-        radio.openWritingPipe(pipes[0]);
-        radio.openReadingPipe(1,pipes[1]);
         radio.startListening();
+	radio.printDetails();
 }
 
-int sendCommand(char* input, FILE* fp){
+void setAddress(uint64_t parsedAddress){
+	radio.stopListening();
+	radio.openWritingPipe(pipes[0]);
+        radio.openReadingPipe(1,parsedAddress);
+	radio.startListening();
+}
+uint64_t parseAddress(char* input){
+	char sensorBoardAddress[10];
+	uint64_t parsedAddress;
+	for (int i = 0; i < 10; i++){
+		sensorBoardAddress[i]=input[i+10];
+	}
+	parsedAddress = strtoull (sensorBoardAddress, NULL, 16);
+	return parsedAddress;
+
+
+}
+
+int sendCommand(char* input, char* output){
 	bool timeout = false;
 	radio.stopListening();
 	bool ok = radio.write( input, sizeof(char[32]) );
 	if (!ok){
-        	input[12] = 1;
-		__msleep(10);
+        	__msleep(10);
+		output[12] = 1;
 		return 1;
 	}
 	else{
@@ -46,14 +64,14 @@ int sendCommand(char* input, FILE* fp){
         if ( timeout )
         {
 
-                input[12] = 2;
+                output[12] = 2;
                 return 2;
 
 
         }
         else
         {
-                radio.read( input, sizeof(char[32]) );
+                radio.read( output, sizeof(char[32]) );
                 return 0;
         }
 
@@ -100,7 +118,9 @@ close(STDERR_FILENO);
 fp = fopen ("Log.txt", "a+");
 initRF24();
 char input[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+char output[32]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 char * ptrInput = &input[0];
+char * ptrOutput = &output[0];
 int num;
 fputs("init\n",fp);
 fflush(fp);
@@ -114,9 +134,14 @@ while (1)
         	i++;
     	}
 	if ( i == 32 ){
-		if(sendCommand(ptrInput, fp) == 0){
+		uint64_t test;
+		test = parseAddress(ptrInput);
+		setAddress(test);
+
+		//fprintf (fp, "The decimal equivalents are: %llu.\n ", test);
+		if(sendCommand(ptrInput, ptrOutput) == 0){
 	 		for(int i = 0; i < 32; i++){
-              			fprintf(fp,"%x ",input[i]);
+              			fprintf(fp,"%x ",output[i]);
                		}
 			fprintf(fp,"\n");
 		}
