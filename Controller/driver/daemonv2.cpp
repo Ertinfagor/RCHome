@@ -10,8 +10,7 @@
 
 RF24 radio("/dev/spidev0.0",8000000 , 25);
 const int role_pin = 7;
-//const uint64_t pipes[2] = { 0xF0F0F0F001LL, 0xF0F0F0F002LL };
-const uint64_t pipes[1] = { 0xF0F0F0F001LL };
+const uint64_t controllerAddres = 0xF0F0F0F001LL;
 
 void initRF24(void){
 	radio.begin();
@@ -19,20 +18,19 @@ void initRF24(void){
         radio.setChannel(1);
         radio.setPALevel(RF24_PA_MAX);
         radio.startListening();
-	radio.printDetails();
 }
 
 void setAddress(uint64_t parsedAddress){
 	radio.stopListening();
-	radio.openWritingPipe(pipes[0]);
-        radio.openReadingPipe(1,parsedAddress);
+	radio.openWritingPipe(parsedAddress);
+	radio.openReadingPipe(1,controllerAddres);
 	radio.startListening();
 }
 uint64_t parseAddress(char* input){
 	char sensorBoardAddress[10];
 	uint64_t parsedAddress;
 	for (int i = 0; i < 10; i++){
-		sensorBoardAddress[i]=input[i+10];
+		sensorBoardAddress[i]=input[i];
 	}
 	parsedAddress = strtoull (sensorBoardAddress, NULL, 16);
 	return parsedAddress;
@@ -121,7 +119,7 @@ char input[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 char output[32]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 char * ptrInput = &input[0];
 char * ptrOutput = &output[0];
-int num;
+unsigned int num;
 fputs("init\n",fp);
 fflush(fp);
 
@@ -129,19 +127,17 @@ while (1)
 {
 	sleep(1);
 	int i=0;
-   	while(fscanf(fp, "%x ", &num) > 0) {
+   	while(fscanf(fp, "%u ", &num) > 0) {
         	input[i] = num;
         	i++;
-    	}
+	}
 	if ( i == 32 ){
-		uint64_t test;
-		test = parseAddress(ptrInput);
-		setAddress(test);
-
-		//fprintf (fp, "The decimal equivalents are: %llu.\n ", test);
+		uint64_t reciverAddres;
+		reciverAddres = parseAddress(ptrInput);
+		setAddress(reciverAddres);
 		if(sendCommand(ptrInput, ptrOutput) == 0){
 	 		for(int i = 0; i < 32; i++){
-              			fprintf(fp,"%x ",output[i]);
+              			fprintf(fp,"%u ",output[i]);
                		}
 			fprintf(fp,"\n");
 		}
