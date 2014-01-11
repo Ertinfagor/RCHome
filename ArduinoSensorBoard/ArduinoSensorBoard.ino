@@ -34,7 +34,8 @@ void loop(void)
 {
   byte command[32] ;
   byte *ptr = &command[0];
-  if ( radio.available() )
+  uint8_t pipenum = 0;
+  if ( radio.available(&pipenum))
     {
      
       bool done = false;
@@ -43,7 +44,9 @@ void loop(void)
         done = radio.read( ptr, sizeof(byte[32]) );
         delay(20);
       }
-      runCommand(ptr);
+      if (pipenum==1){
+          runCommand(ptr);
+      }
       Serial.println(ptr[12]);
       
       radio.stopListening();
