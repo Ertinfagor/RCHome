@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include "nRF24L01.h"
 #include "RF24.h"
+//#include "printf.h"
 
 RF24 radio(9,10);
 
@@ -42,7 +43,7 @@ void loop(void)
       while (!done)
       {
         done = radio.read( ptr, sizeof(byte[32]) );
-        delay(20);
+        delay(10);
       }
       if (pipenum==1){
           runCommand(ptr);
@@ -53,7 +54,16 @@ void loop(void)
       radio.write(ptr, sizeof(byte[32]));
       radio.startListening();
     }
-
+    
+  if ( Serial.available() )
+  {
+    char c = toupper(Serial.read());
+    if ( c == 'D'){
+       Serial.println("Test message");
+      //radio.printDetails();        //GOING TO ARDUINO DOWN
+    }
+    
+  }
 }
 void runCommand(byte *ptr)
 {
@@ -67,7 +77,7 @@ void runCommand(byte *ptr)
     }
     case 1:
     {
-      if (ptr[12]== 0x00){
+      if (ptr[12]== 0){
         switchLight(ptr);
       }
       break;
@@ -84,26 +94,26 @@ void readAllSensors(byte* ptr){
   
 }
 void readTemp(byte* ptr){
-  ptr[12] = 0xFF;
-  ptr[13] = 0x02;
+  ptr[12] = 255;
+  ptr[13] = 2;
 }
 void readHum(byte* ptr){
-  ptr[12] = 0xFF;
-  ptr[14] = 0x03;
+  ptr[12] = 255;
+  ptr[14] = 23;
 }
 void readLum(byte* ptr){
-  ptr[12] = 0xFF;
-  ptr[15] = 0x05;
+  ptr[12] = 255;
+  ptr[15] = 14;
 
 }
 
 void readLamp(byte* ptr){
-  ptr[12] = 0xFF;
+  ptr[12] = 255;
   ptr[16] = lampStatus;
 
 }
 void readSwitch(byte* ptr){
-  ptr[12] = 0xFF;
+  ptr[12] = 255;
   ptr[17] = switchStatus;
 
 }
@@ -113,12 +123,12 @@ void readSwitch(byte* ptr){
 void switchLight(byte* ptr)
 {
   lampStatus = ptr[16];
-  if(lampStatus == 0xFF){
+  if(lampStatus == 255){
     digitalWrite(led, HIGH);
   }
   else{
     digitalWrite(led, LOW);
   }
-  ptr[12] = 0xFF;
+  ptr[12] = 255;
 }
 
