@@ -52,7 +52,7 @@ int sendCommand(char* input, char* output){
         	unsigned long started_waiting_at = __millis();
         	while ( ! radio.available() && ! timeout ) {
                 	__msleep(5);
-                	if (__millis() - started_waiting_at > 200 )
+                	if (__millis() - started_waiting_at > 20000 )
                 	{
                         	timeout = true;
                 	}
@@ -135,12 +135,13 @@ while (1)
 		uint64_t reciverAddres;
 		reciverAddres = parseAddress(ptrInput);
 		setAddress(reciverAddres);
-		if(sendCommand(ptrInput, ptrOutput) == 0){
+		int error = sendCommand(ptrInput, ptrOutput);
+		if(!error){
 	 		for(int i = 0; i < 32; i++){
               			fprintf(fp,"%u ",output[i]);
                		}
 			fprintf(fp,"\n");
-		}
+		}else{ fprintf(fp,"error %i\n",error);}
 		fflush(fp);
 	}
 }
