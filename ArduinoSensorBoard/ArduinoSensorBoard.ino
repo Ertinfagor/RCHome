@@ -1,9 +1,14 @@
 #include <SPI.h>
 #include "nRF24L01.h"
 #include "RF24.h"
+#include "DHT.h"
 //#include "printf.h"
 
+#define DHTPIN 2 
+#define DHTTYPE DHT11 
+
 RF24 radio(9,10);
+DHT dht(DHTPIN, DHTTYPE);
 
 const uint64_t pipes[2] = { 0xF0F0F0F001LL, 0xF0F0F0F002LL };
 const byte shortAddr = 0x02;
@@ -14,8 +19,10 @@ byte switchStatus = 0;
 void setup(void)
 {
   Serial.begin(57600);
-
+  
+  dht.begin();
   radio.begin();
+  
   radio.setAutoAck(false);
   radio.setRetries(15,15);
   radio.setPALevel(RF24_PA_MAX);
@@ -48,7 +55,7 @@ void loop(void)
       if (pipenum==1){
           runCommand(ptr);
       }
-      Serial.println(ptr[12]);
+      Serial.println(ptr[13]);
       
       radio.stopListening();
       radio.write(ptr, sizeof(byte[32]));
@@ -94,12 +101,24 @@ void readAllSensors(byte* ptr){
   
 }
 void readTemp(byte* ptr){
-  ptr[12] = 255;
-  ptr[13] = 2;
+  float t = dht.readTemperature();
+  if (!isnan(t)){
+    ptr[13] = (byte)t;
+    ptr[12] = 255;
+  }else{
+    ptr[12] = 13;      
+  }
+  
+  
 }
 void readHum(byte* ptr){
-  ptr[12] = 255;
-  ptr[14] = 23;
+  float h = dht.readHumidity();
+  if (!isnan(h)){
+    ptr[14] = (byte)h;
+    ptr[12] = 255;
+  }else{
+    ptr[12] = 14;      
+  }
 }
 void readLum(byte* ptr){
   ptr[12] = 255;
