@@ -9,10 +9,8 @@ Goals:
 Controller/driver
 	daemon in raspberry pi which provide interface from CotrollerInterface to NRF24l01+ tranciever
 Goals:
-	read from file a packet
+	read from db a packet
 	send throw nRF24l01+ packet to addres that parsed from input packet
 	recive throw nRF24l01+ packet 
-	 write the packet to file
+	write the packet to db
 
-Controller/interface
-	script on python which form a packet and write result to db

@@ -13,7 +13,7 @@ Version 1 goals:
 ControlBoard control module based on Raspberry Pi and nRF24l01+
 Version 1 goals:
 	Periodic collection of sensor readings from all SensorBoard(in progress...)
-	Transmitting control commands to all SensorBoard(in progress...)
+	Transmitting control commands to SensorBoard(in progress...)
 	Keeping all the readings the database(in progress...)
 	Providing API to display readings and control switches(in progress...)
 	Providing Web-based interface to display readings and control switches(in progress...)

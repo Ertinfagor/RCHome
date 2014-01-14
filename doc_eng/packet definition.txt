@@ -1,0 +1,22 @@
+Packet size: 32 B
+
+ControlBoard->SensorBoard
+0: Command		0 - get																	1 - set
+1: Result		0																		0
+2: Module1		0																		0-255 value that will be sended to module
+.				.																		.
+.				.																		.
+.				.																		.
+31:Module29		0																		0-255 value that will be sended to module 
+
+SensorBoard->ControlBoard
+0: Command		0 - value that was recived												1 - value that was recived
+1: Result		0 - Failed 255-OK!														0 - Failed 255-OK!
+2: Module1		0-254 result of reading sensor, 255-Sensor Failed						0 - Failed 255-OK!
+.				.																		.
+.				.																		.
+.				.																		.
+31:Module29		0																		0-255 value that will be sended to module 
+
+Module can be a Sensor(ReadOnly) or Switch(Read/Write)
+
