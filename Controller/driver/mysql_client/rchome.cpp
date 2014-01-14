@@ -2,12 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mysql.h>
-
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <cstdlib>
+#include <iostream>
 
 	MYSQL* mysql;
    	MYSQL_RES *res;
    	MYSQL_ROW row;
-	
+
 	int connectMysql(){
 		char *server = "localhost";
    		char *user = "test";
@@ -22,9 +26,9 @@
 			return 0;
 		}
 	}
-	
+
 	int sendQuery(){
-		if (mysql_query(mysql,"SELECT * FROM commands ORDER BY priority;")){
+		if (mysql_query(mysql,"SELECT * FROM commands_test ORDER BY priority;")){
 			/*write error to log*/
 			return 1;
 			}
@@ -40,24 +44,21 @@
 		mysql_free_result(res);
 		return 0;
 	}
-	
+
 	int main(){
 		char command[32];
 		char id[10];
 		char query[100] ;
-		
+
 		connectMysql();
-		
-		
-		
+		sendQuery();
 		memset (command,0,32);
 		sscanf(row[4],"%d",command);
-		
+
 		for (int j = 0; j < 32; j++){
 			printf("%c  %d  %u\n",command[j],command[j], command[j]);
         }
 
-	
-	
+
 		return 0;
 	}

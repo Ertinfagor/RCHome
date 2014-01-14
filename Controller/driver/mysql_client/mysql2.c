@@ -1,8 +1,15 @@
 /* Simple C program that connects to MySQL Database server*/
-	#include <mysql.h>
 	#include <stdio.h>
+	#include <stdlib.h>
+	#include <unistd.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
 	#include <string.h>
-
+	//#include <cstdlib>
+	//#include <iostream>
+	//#include "./librf24/RF24.h"
+	#include <mysql.h>
+	
 	MYSQL* mysql;
    	MYSQL_RES *res;
    	MYSQL_ROW row;
@@ -35,7 +42,7 @@
 
 
 		while(1){
-			if (mysql_query(mysql,"SELECT * FROM commands ORDER BY priority;")){
+			if (mysql_query(mysql,"SELECT * FROM commands_test ORDER BY priority;")){
 				/*write error to log*/
 				continue;
 
@@ -50,15 +57,20 @@
 			}
 			for (i=0 ; i < mysql_num_fields(res); i++){
 				strcpy(id,  row[0]);
-				printf("%s ",row[i]);
+				printf("%s\n ",row[i]);
 			}
 				printf("\n");
 			char command[32];
-			memset (command,'0',32);
-			strcpy(command,row[2]);
-			for(int k=0;k<32;k++) command[k]-='0';  /*workaround*/
+			memset (command,0,32);
+			unsigned long long int address;
+			printf("%s %c %llu %ll\n",row[3],row[3],row[3],row[3]);
+			sscanf(row[3],"%llu",address);
+			printf("Addres: %llu\n\n\n",address);
+			sscanf(row[4],"%d",command);
+			//strcpy(command,row[6]);
+			//for(int k=0;k<32;k++) command[k]-='0';  /*workaround*/
 			for (int j = 0; j < 32; j++){
-			printf("%u\n",command[j]);
+			printf("%c  %d  %u\n",command[j],command[j], command[j]);
 			}
 
 
@@ -67,7 +79,7 @@
 			printf("\n");
 int u = 0;
 scanf("%i",&u);
-			snprintf(query, 99, "DELETE FROM commands WHERE id= %s LIMIT 1;", id);
+			snprintf(query, 99, "DELETE FROM commands_test WHERE id= %s LIMIT 1;", id);
 			if (mysql_real_query(mysql,&query,99)){
 
 				/*write error to log*/
