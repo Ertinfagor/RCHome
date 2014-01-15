@@ -42,21 +42,16 @@ int db::init(char* server,char* user,char* password, char* database){
     if (!mysql_real_connect(mysql, server, user, password, database, 0, NULL, 0)) {
 		printf("%s\n", mysql_error(mysql));
 		return 1;
-    }else{
-		printf("db connected\n");
-		return 0;
     }
-   return 2;
-
+   
+	return 0;
 }
 int db::isPacket(void){
 	return selectQuery();
 }
 Packet db::recivePacket(void){
 	packet = parsePacket();
-	printf("packet recived\n");
 	deleteQuery(id);
-	printf("\n\n\n%i\n\n\n",packet.command[0]);
 
 	return packet;
 }
@@ -68,7 +63,7 @@ int db::selectQuery(void){
         printf("%s\n", mysql_error(mysql));
 	return 1;
     }
-    if(!(this->res = mysql_store_result(mysql))){
+    if(!(res = mysql_store_result(mysql))){
         printf("%s\n", mysql_error(mysql));
 	/*write error to log*/
         return 2;
@@ -78,8 +73,6 @@ int db::selectQuery(void){
 	/*write error to log*/
 	return 3;
     }
-	printf("there is packet\n");
-
     return 0;
 }
 
@@ -90,34 +83,24 @@ int db::deleteQuery(char *id){
 /*	if (mysql_query(mysql,query)){
         /*write error to log/
         return 1;
-    }else{
-		return 0;
-	}*/
+    }*/
 	return 0;
 }
 Packet db::parsePacket(void){
 	int numFields = 0;
-	char buf;
-//	printf("1\n");
-
 	packet.address = 0;
-	memset(packet.command,0,31);
-	memset(&buf,0,1);
-//	printf("2\n");
+
+	memset(packet.command,0,32);
 
 	sscanf(row[0], "%s", id);
 //	sscanf(this->row[3], "%llu", this->packet.address);
-	//printf("\n");
 
 	numFields = mysql_num_fields(res);
-	printf("Fields %i\n",numFields);
+
 	for (int i = 4 ; i < numFields; i++){
-	//	printf("filling packets\n");
-	//	printf("%s %d \n",row[i],row[i]);
 		sscanf(row[i],"%u",&packet.command[i-4]);
-//		printf("%u\n",packet.command[i-4]);
-		}
-//	printf("4\n");
+	}
+
 
 	return packet;
 }
