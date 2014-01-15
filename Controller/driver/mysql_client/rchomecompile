@@ -1,2 +1,0 @@
-#!/bin/bash
- g++ -o rchome $(mysql_config --cflags) rchome.cpp $(mysql_config --libs)

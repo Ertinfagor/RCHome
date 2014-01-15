@@ -1,8 +1,21 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <mysql.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <cstdlib>
+#include <iostream>
+
+
+
 class Packet{
 	public:
 		uint64_t address;
         char command[32];
-}
+};
 
 
 class db{
@@ -10,53 +23,63 @@ class db{
 		int init(char* server,char* user,char* password, char* database);
 		int isPacket(void);
 		Packet recivePacket(void);
-		void SendPacket(Packet);
+		void sendPacket(Packet);
 	private:
 		Packet packet;
 		MYSQL* mysql;
 		MYSQL_RES *res;
-        MYSQL_ROW row;
+	        MYSQL_ROW row;
 		char id[10];
 		int selectQuery(void);
 		int deleteQuery(char *id);
 		Packet parsePacket(void);
-}
+};
 
 
 int db::init(char* server,char* user,char* password, char* database){
-	this.mysql = mysql_init(NULL);
+	mysql = mysql_init(NULL);
     /* Connect to database */
-    if (!mysql_real_connect(this.mysql, server, user, password, database, 0, NULL, 0)) {
-		fprintf(stderr, "%s\n", mysql_error(mysql));
+    if (!mysql_real_connect(mysql, server, user, password, database, 0, NULL, 0)) {
+		printf("%s\n", mysql_error(mysql));
 		return 1;
     }else{
+		printf("db connected\n");
 		return 0;
     }
+   return 2;
 
 }
 int db::isPacket(void){
 	return selectQuery();
 }
 Packet db::recivePacket(void){
-	this.packet = parsePacket();
+	packet = parsePacket();
+	printf("packet recived\n");
 	deleteQuery(id);
-	return this.packet;
+	printf("\n\n\n%i\n\n\n",packet.command[0]);
+
+	return packet;
 }
-void db::SendPacket(Packet);
+void db::sendPacket(Packet){}
 
 int db::selectQuery(void){
-	if (mysql_query(mysql,"SELECT * FROM commands_test ORDER BY priority;"))){
+	if (mysql_query(mysql,"SELECT * FROM commands_test ORDER BY priority;")){
         /*write error to log*/
-        return 1;
+        printf("%s\n", mysql_error(mysql));
+	return 1;
     }
-    if(!(res = mysql_store_result(mysql))){
-        /*write error to log*/
+    if(!(this->res = mysql_store_result(mysql))){
+        printf("%s\n", mysql_error(mysql));
+	/*write error to log*/
         return 2;
     }
     if(!(row = mysql_fetch_row(res))){
-		/*write error to log*/
-		return 3;
+	printf("%s\n", mysql_error(mysql));
+	/*write error to log*/
+	return 3;
     }
+	printf("there is packet\n");
+
     return 0;
 }
 
@@ -64,24 +87,39 @@ int db::deleteQuery(char *id){
 	char query[100];
 	memset (query,0,100);
 	snprintf(query, 99, "DELETE FROM commands_test WHERE id = %s LIMIT 1;", id);
-	if (mysql_query(mysql,query))){
-        /*write error to log*/
+/*	if (mysql_query(mysql,query)){
+        /*write error to log/
         return 1;
     }else{
 		return 0;
-	}
+	}*/
+	return 0;
 }
-Packet parsePacket(void){
+Packet db::parsePacket(void){
 	int numFields = 0;
-	this.packet.address = 0;
-	memset(this.packet.command,0,32);
-	
+	char buf;
+//	printf("1\n");
+
+	packet.address = 0;
+	memset(packet.command,0,31);
+	memset(&buf,0,1);
+//	printf("2\n");
+
 	sscanf(row[0], "%s", id);
-	sscanf(row[3], "%llu", id);
-	numFields = mysql_num_fields(res) - 4;
-	for (i=4 ; i < numFields; i++){
-		sscanf(row[i],"%u",this.packet.command[i-4]);
-	}
+//	sscanf(this->row[3], "%llu", this->packet.address);
+	//printf("\n");
+
+	numFields = mysql_num_fields(res);
+	printf("Fields %i\n",numFields);
+	for (int i = 4 ; i < numFields; i++){
+	//	printf("filling packets\n");
+	//	printf("%s %d \n",row[i],row[i]);
+		sscanf(row[i],"%u",&packet.command[i-4]);
+//		printf("%u\n",packet.command[i-4]);
+		}
+//	printf("4\n");
+
+	return packet;
 }
 
 
@@ -92,15 +130,17 @@ int main(){
 	mysql.init("localhost","test","123","RCHome");
 	int j = 0;
 	while(1){
-		if(mysql.isPacket()){
-			testpacket = mysql.reciveQuery();
-		}
-	
+	memset(testpacket.command,0,32);
+	if(!mysql.isPacket()){
+			testpacket = mysql.recivePacket();
+			printf("Result\n");
+
 	for (int i = 0; i < 32; i++){
-		printf("%d\n", testpacket.command);
+		printf("%i\n", testpacket.command[i]);
 	}
-	scanf("%i",j);
-	
+	scanf("%i",&j);
+	}
+
 }
 
 
