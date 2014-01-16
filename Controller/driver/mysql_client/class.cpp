@@ -13,7 +13,7 @@
 
 class Packet{
 	public:
-		uint64_t address;
+	uint64_t address;
         char command[32];
 };
 
@@ -32,6 +32,7 @@ class db{
 		char id[10];
 		int selectQuery(void);
 		int deleteQuery(char *id);
+		int insertQuery(char* query, char* table);
 		Packet parsePacket(void);
 };
 
@@ -43,7 +44,7 @@ int db::init(char* server,char* user,char* password, char* database){
 		printf("%s\n", mysql_error(mysql));
 		return 1;
     }
-   
+
 	return 0;
 }
 int db::isPacket(void){
@@ -55,7 +56,38 @@ Packet db::recivePacket(void){
 
 	return packet;
 }
-void db::sendPacket(Packet){}
+void db::sendPacket(Packet inputPacket){
+	char query[10000];
+        char buf[10];
+	printf(".\n");
+	memset (query,0,9999);
+         printf("%llu.\n", inputPacket.address);
+
+	snprintf(query, 9999, "CREATE TABLE IF NOT EXISTS  RCHome.%llu LIKE templ_result",inputPacket.address );
+ printf("%s\n", query);
+
+mysql_real_query(mysql,query,sizeof(query));
+ printf(".\n");
+
+	printf("%s\n", query);
+ printf(".\n");
+
+	memset (query,0,9999);
+        snprintf(query, 9999, "INSERT INTO RCHome.%llu VALUES (%llu ,NOW() ",inputPacket.address,inputPacket.address );
+	printf(".\n");
+	for (int i = 0 ; i < 32; i++){
+		snprintf(buf,9,"%u",inputPacket.command[i]);
+		strcat(query, " ,");
+		strcat(query, buf);
+	}
+	printf(".\n");
+	strcat(query,");");
+	mysql_realy_query(mysql,query, sizeof(query));
+	printf("%s\n", query);
+
+
+
+}
 
 int db::selectQuery(void){
 	if (mysql_query(mysql,"SELECT * FROM commands_test ORDER BY priority;")){
@@ -86,6 +118,18 @@ int db::deleteQuery(char *id){
     }*/
 	return 0;
 }
+/*int db::insertQuery(char* query, char* table){
+
+
+
+
+	}
+
+
+
+
+
+}*/
 Packet db::parsePacket(void){
 	int numFields = 0;
 	packet.address = 0;
@@ -93,12 +137,12 @@ Packet db::parsePacket(void){
 	memset(packet.command,0,32);
 
 	sscanf(row[0], "%s", id);
-//	sscanf(this->row[3], "%llu", this->packet.address);
-
-	numFields = mysql_num_fields(res);
-
-	for (int i = 4 ; i < numFields; i++){
-		sscanf(row[i],"%u",&packet.command[i-4]);
+	sscanf(row[3], "%llu", &packet.address);
+	printf("%llu\n", packet.address);
+	numFields = mysql_num_fields(res) - 4;
+	printf("Num field: %i\n",numFields);
+	for (int i = 0 ; i < numFields; i++){
+		sscanf(row[i+4],"%u",&packet.command[i]);
 	}
 
 
@@ -121,6 +165,8 @@ int main(){
 	for (int i = 0; i < 32; i++){
 		printf("%i\n", testpacket.command[i]);
 	}
+	printf("end packet\n");
+	mysql.sendPacket(testpacket);
 	scanf("%i",&j);
 	}
 
