@@ -41,7 +41,6 @@ int db::init(char* server,char* user,char* password, char* database){
 	mysql = mysql_init(NULL);
     /* Connect to database */
     if (!mysql_real_connect(mysql, server, user, password, database, 0, NULL, 0)) {
-		printf("%s\n", mysql_error(mysql));
 		return 1;
     }
 
@@ -56,43 +55,31 @@ Packet db::recivePacket(void){
 
 	return packet;
 }
-void db::sendPacket(Packet inputPacket){
+int db::sendPacket(Packet inputPacket){
 	char query[10000];
         char buf[10];
-	printf(".\n");
 	memset (query,0,9999);
-         printf("%llu.\n", inputPacket.address);
-
 	snprintf(query, 9999, "CREATE TABLE IF NOT EXISTS  RCHome.%llu LIKE templ_result",inputPacket.address );
- printf("%s\n", query);
-
-mysql_real_query(mysql,query,sizeof(query));
- printf(".\n");
-
-	printf("%s\n", query);
- printf(".\n");
-
-	memset (query,0,9999);
+	if (mysql_real_query(mysql,query,sizeof(query))){
+		return 1;
+	}
+ 	memset (query,0,9999);
         snprintf(query, 9999, "INSERT INTO RCHome.%llu VALUES (%llu ,NOW() ",inputPacket.address,inputPacket.address );
-	printf(".\n");
 	for (int i = 0 ; i < 32; i++){
 		snprintf(buf,9,"%u",inputPacket.command[i]);
 		strcat(query, " ,");
 		strcat(query, buf);
 	}
-	printf(".\n");
 	strcat(query,");");
-	mysql_realy_query(mysql,query, sizeof(query));
-	printf("%s\n", query);
-
-
-
+	if (mysql_realy_query(mysql,query, sizeof(query))){
+		return 2;
+	}
+	return 0;
 }
 
 int db::selectQuery(void){
 	if (mysql_query(mysql,"SELECT * FROM commands_test ORDER BY priority;")){
-        /*write error to log*/
-        printf("%s\n", mysql_error(mysql));
+
 	return 1;
     }
     if(!(res = mysql_store_result(mysql))){
