@@ -18,7 +18,7 @@ class db{
 		int init(char* server,char* user,char* password, char* database);
 		int isPacket(void);
 		Packet recivePacket(void);
-		void sendPacket(Packet);
+		void sendPacket(Packet inputPacket);
 	private:
 		Packet packet;
 		MYSQL* mysql;
