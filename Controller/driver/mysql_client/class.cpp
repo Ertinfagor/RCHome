@@ -8,14 +8,9 @@
 #include <sys/stat.h>
 #include <cstdlib>
 #include <iostream>
+#include "../packet/packet.h"
 
 
-
-class Packet{
-	public:
-	uint64_t address;
-        char command[32];
-};
 
 
 class db{
