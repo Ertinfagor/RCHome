@@ -19,7 +19,7 @@ public:
 private:
   RF24 radio;
   Packet outputPacket;
-  const uint64_t controllerAddres;
+  uint64_t controllerAddres;
   void setAddress(uint64_t parsedAddress);
   void sendCommand(char* input, char* output);
   
@@ -30,7 +30,7 @@ private:
 
 int RCHome::init(){
     
-radio("/dev/spidev0.0",8000000 , 25);
+RF24 radio("/dev/spidev0.0",8000000 , 25);
 const int role_pin = 7;
 controllerAddres = 0xF0F0F0F001LL;
 radio.begin();
