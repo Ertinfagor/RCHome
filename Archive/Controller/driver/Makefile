@@ -18,7 +18,7 @@ CCFLAGS=-Wall -Ofast -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf
 #CCFLAGS=
 
 # define all programs
-PROGRAMS = terminal daemonv2 convert
+PROGRAMS = terminal daemonv2 
 SOURCES = ${PROGRAMS:=.cpp}
 
 all: ${PROGRAMS}
