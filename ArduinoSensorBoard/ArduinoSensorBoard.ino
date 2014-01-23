@@ -12,10 +12,9 @@ DHT dht(DHTPIN, DHTTYPE);
 
 const uint64_t pipes[2] = { 0xF0F0F0F001LL, 0xF0F0F0F002LL };
 const byte shortAddr = 0x02;
-int led = 13;
-byte lampStatus = 0;
-byte switchStatus = 0;
-
+int switchsPins[] = {13};
+int switchesBytes[] = {10};
+int switchStatus[] = {0};
 void setup(void)
 {
   Serial.begin(57600);
@@ -32,7 +31,7 @@ void setup(void)
   radio.startListening();
   
   // Testing switch on/off
-   pinMode(led, OUTPUT);  
+   pinMode(switchsPins[0], OUTPUT);  
  
   
   
@@ -55,58 +54,43 @@ void loop(void)
       if (pipenum==1){
           runCommand(ptr);
       }
-      Serial.println(ptr[13]);
+      Serial.println(ptr[1]);
       
       radio.stopListening();
       radio.write(ptr, sizeof(byte[32]));
       radio.startListening();
     }
     
-  if ( Serial.available() )
-  {
-    char c = toupper(Serial.read());
-    if ( c == 'D'){
-       Serial.println("Test message");
-      //radio.printDetails();        //GOING TO ARDUINO DOWN
-    }
-    
-  }
+  
 }
 void runCommand(byte *ptr)
 {
-  Serial.println(ptr[10]);
-  switch (ptr[10])
-  {
-    case 0:
-    {
-      readAllSensors(ptr);  
-      break;
-    }
-    case 1:
-    {
-      if (ptr[12]== 0){
-        switchLight(ptr);
-      }
-      break;
-    }
+  Serial.println(ptr[0]);
+  if(!ptr[0]){
+    readSensors(ptr);
+  }else{
+    writeSensors(ptr);
   }
 
 }
-void readAllSensors(byte* ptr){
+void readSensors(byte* ptr){
   readTemp(ptr);
   readHum(ptr);
   readLum(ptr);
   readSwitch(ptr);
-  readLamp(ptr);
-  
 }
+
+void writeSensors(byte* ptr){
+  writeSwitch(ptr);
+}
+
 void readTemp(byte* ptr){
   float t = dht.readTemperature();
   if (!isnan(t)){
-    ptr[13] = (byte)t;
-    ptr[12] = 255;
+    ptr[2] = (byte)t;
+    ptr[1] = 255;
   }else{
-    ptr[12] = 13;      
+    ptr[1] = 13;      
   }
   
   
@@ -114,40 +98,36 @@ void readTemp(byte* ptr){
 void readHum(byte* ptr){
   float h = dht.readHumidity();
   if (!isnan(h)){
-    ptr[14] = (byte)h;
-    ptr[12] = 255;
+    ptr[3] = (byte)h;
+    ptr[1] = 255;
   }else{
-    ptr[12] = 14;      
+    ptr[1] = 14;      
   }
 }
 void readLum(byte* ptr){
-  ptr[12] = 255;
-  ptr[15] = 14;
+  ptr[4] = 255;
+  ptr[1] = 255;
 
 }
 
-void readLamp(byte* ptr){
-  ptr[12] = 255;
-  ptr[16] = lampStatus;
-
-}
 void readSwitch(byte* ptr){
-  ptr[12] = 255;
-  ptr[17] = switchStatus;
-
+  for(int i = 0; i < sizeof(switchesBytes); i++){
+    ptr[switchesBytes[i]]=switchStatus[i];
+  
+  }
+  ptr[1] = 255;
 }
 
-
-
-void switchLight(byte* ptr)
-{
-  lampStatus = ptr[16];
-  if(lampStatus == 255){
-    digitalWrite(led, HIGH);
+void writeSwitch(byte* ptr){
+  for(int i = 0; i < sizeof(switchesBytes); i++){
+    if(ptr[switchesBytes[i]]){
+         digitalWrite(switchsPins[i], HIGH); 
+    }else{
+        digitalWrite(switchsPins[i], LOW);
+    }
+    switchStatus[i] = ptr[switchesBytes[i]];
+    ptr[1] = 255;
   }
-  else{
-    digitalWrite(led, LOW);
-  }
-  ptr[12] = 255;
 }
+
 
