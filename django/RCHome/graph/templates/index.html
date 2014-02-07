@@ -1,0 +1,47 @@
+{% load chart_tags %}
+<head>
+<meta http-equiv="refresh" content="60">
+</head> 
+<p>Текущая температура:{{last_value.Temperature}}</p><p>
+{% chart %}
+    http://chart.apis.google.com/chart
+       ?chxr=0,0,40
+       &chxt=y,x
+       &chbh=a
+       &chs=440x220
+       &cht=lc
+       &chco=f94d89
+       &chds=0,40
+       &chd=t:{% for sensor in short_sensor_list %} {{ sensor.Temperature }}, {% endfor %} {{last_value.Temperature}}
+       &chxl = 1: |{% for sensor in short_sensor_list %} {{ sensor.datetime.time }}| {% endfor %} {{last_value.datetime.time}}|
+       &chtt=Температура
+{% endchart %}
+</p>
+<p>
+Текущая влажность:{{last_value.Humidity}}</p><p>
+{% chart %}
+    http://chart.apis.google.com/chart
+       ?chxr=0,0,100
+       &chxt=y,x
+       &chbh=a
+       &chs=440x220
+       &cht=lc
+       &chco=4D89F9
+       &chds=0,100
+       &chd=t:{% for sensor in short_sensor_list %} {{ sensor.Humidity }}, {% endfor %} {{last_value.Humidity}}
+       &chxl = 1: |{% for sensor in short_sensor_list %} {{ sensor.datetime.time }}| {% endfor %} {{last_value.datetime.time}}|
+       &chtt=Влажность
+{% endchart %}
+</p>
+<p>Состояние LED:{{last_value.led}} </p>
+
+
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'index' %}" method="post">
+{% csrf_token %}
+<input type="radio" name="led" value="1"> ON<Br>
+<input type="radio" name="led" value="0"> OFF<Br>
+<input type="submit" value="change" />
+</form>
