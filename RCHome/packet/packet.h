@@ -4,7 +4,7 @@
 class Packet{
 	public:
 		long long unsigned int address;
-        char command[32];
+        uint command[32];
 	int error;
 }; 
 

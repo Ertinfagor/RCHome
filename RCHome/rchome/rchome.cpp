@@ -9,8 +9,8 @@ radio.begin();
 radio.setRetries(15,15);
 radio.setChannel(1);
 radio.setPALevel(RF24_PA_MAX);
-radio.startListening();  
-
+radio.startListening();
+openlog( "RCHome", LOG_PID, LOG_DAEMON);
 }
 
 void RCHome::setAddress(uint64_t parsedAddress){
@@ -29,10 +29,12 @@ void RCHome::sendCommand(char* input, char* output){
 	if (!ok){
         	__msleep(10);
 		outputPacket.error = 1;
+		syslog(LOG_ERR, "Can`t send packet");
 		return;
 	}
 	else{
-        	radio.startListening();
+        	syslog(LOG_NOTICE, "Packet sended, wait for response...");
+		radio.startListening();
         	unsigned long started_waiting_at = __millis();
         	while ( ! radio.available() && ! timeout ) {
                 	__msleep(5);
@@ -47,14 +49,16 @@ void RCHome::sendCommand(char* input, char* output){
         {
 
                 outputPacket.error = 2;
-                return;
+                syslog(LOG_ERR, "Timeout send packet");
+		return;
 
 
         }
         else
         {
                 radio.read( output, sizeof(char[32]) );
-                return;
+                syslog(LOG_NOTICE, "Packet recieved");
+		return;
         }
 
 }
@@ -63,9 +67,6 @@ Packet RCHome::runCommand(Packet inputPacket){
   setAddress(inputPacket.address);
   sendCommand(inputPacket.command, outputPacket.command);
   outputPacket.address = inputPacket.address;
-  
+
   return outputPacket;
-  
-  
-  
 }

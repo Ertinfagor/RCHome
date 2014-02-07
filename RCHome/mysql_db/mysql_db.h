@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <cstdlib>
 #include <iostream>
+#include <syslog.h>
 #include "../packet/packet.h"
 
 
@@ -15,7 +16,8 @@
 
 class db{
         public:
-                int init(char* server,char* user,char* password, char* database);
+                db(char* server,char* user,char* password, char* database);
+		//int init(char* server,char* user,char* password, char* database);
                 int isPacket(void);
                 Packet recivePacket(void);
                 int sendPacket(Packet inputPacket);
