@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 int main(){
-	db* conn = new db("localhost","test","123","RCHome");
+	db* conn = new db("localhost","test","123","RCHome1");
 	RCHome *nrf = new RCHome();
 	//conn.init("localhost","test","123","RCHome");
 	Packet testpacket, test2packet;
@@ -13,23 +13,23 @@ int main(){
 	fp = fopen("output.log", "a+");
 	fprintf(fp, "init\n");
 	while(1){
-		memset(testpacket.command,0,32);
-		memset(test2packet.command,0,32);
+		memset(testpacket.command,0,COMMAND_LENGHT);
+		memset(test2packet.command,0,COMMAND_LENGHT);
 		usleep(1000);
 		if(!conn->isPacket()){
 			testpacket = conn->recivePacket();
 
 			fprintf(fp, "Send\n");
-			for (int i = 0; i < 32; i++){
-				fprintf(fp, "%i", testpacket.command[i]);
+			for (int i = 0; i < COMMAND_LENGHT; i++){
+				fprintf(fp, "%u", testpacket.command[i]);
 			}
 			fprintf(fp,"\n");
 
 			test2packet = nrf->runCommand(testpacket);
 
 			fprintf(fp, "Send\n");
-			for (int i = 0; i < 32; i++){
-				fprintf(fp,"%i", test2packet.command[i]);
+			for (int i = 0; i < COMMAND_LENGHT; i++){
+				fprintf(fp,"%u", test2packet.command[i]);
 			}
 			fprintf(fp,"\n");
 			conn->sendPacket(test2packet);

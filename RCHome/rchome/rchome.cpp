@@ -25,7 +25,7 @@ void RCHome::setAddress(uint64_t parsedAddress){
 void RCHome::sendCommand(char* input, char* output){
 	bool timeout = false;
 	radio.stopListening();
-	bool ok = radio.write( input, sizeof(char[32]) );
+	bool ok = radio.write( input, sizeof(char[COMMAND_LENGHT]) );
 	if (!ok){
         	__msleep(10);
 		outputPacket.error = 1;
@@ -38,7 +38,7 @@ void RCHome::sendCommand(char* input, char* output){
         	unsigned long started_waiting_at = __millis();
         	while ( ! radio.available() && ! timeout ) {
                 	__msleep(5);
-                	if (__millis() - started_waiting_at > 20000 )
+                	if (__millis() - started_waiting_at > RESPONSE_TIMEOUT )
                 	{
                         	timeout = true;
                 	}
@@ -56,7 +56,7 @@ void RCHome::sendCommand(char* input, char* output){
         }
         else
         {
-                radio.read( output, sizeof(char[32]) );
+                radio.read( output, sizeof(char[COMMAND_LENGHT]) );
                 syslog(LOG_NOTICE, "Packet recieved");
 		return;
         }

@@ -26,7 +26,8 @@ class db{
                 MYSQL* mysql;
                 MYSQL_RES *res;
                 MYSQL_ROW row;
-                char id[10];
+                char workDB[100];
+		char id[10];
                 int selectQuery(void);
                 int deleteQuery(char *id);
                 int insertQuery(char* query, char* table);

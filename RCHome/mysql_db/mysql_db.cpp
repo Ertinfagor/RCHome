@@ -3,7 +3,8 @@
 
 db::db(char* server,char* user,char* password, char* database){
 	mysql = mysql_init(NULL);
-    openlog("RCHome",LOG_PID, LOG_DAEMON);
+     snprintf(workDB,99,"%s",database);
+	openlog("RCHome",LOG_PID, LOG_DAEMON);
 	/* Connect to database */
     if (!mysql_real_connect(mysql, server, user, password, database, 0, NULL, 0)) {
 		syslog(LOG_EMERG,"Can`t connect to db, %s",mysql_error(mysql));
@@ -27,16 +28,15 @@ Packet db::recivePacket(void){
 int db::sendPacket(Packet inputPacket){
 	char query[10000];
         char buf[10];
-	//printf("write to table %llu\n", inputPacket.address);
 	memset (query,0,9999);
-	snprintf(query, 9999, "CREATE TABLE IF NOT EXISTS  RCHome.%llu LIKE templ_result;",inputPacket.address );
+	snprintf(query, 9999, "CREATE TABLE IF NOT EXISTS  %s.%llu LIKE templ_SensorBoard;",workDB,inputPacket.address );
 	if (mysql_real_query(mysql,query,sizeof(query))){
 		syslog(LOG_EMERG,"Can`t create table, %s",mysql_error(mysql));
 		return 1;
 	}
  	memset (query,0,9999);
-        snprintf(query, 9999, "INSERT INTO RCHome.%llu VALUES (%llu ,NOW() ",inputPacket.address,inputPacket.address );
-	for (int i = 0 ; i < 32; i++){
+        snprintf(query, 9999, "INSERT INTO %s.%llu VALUES (DEFAULT, NOW(), %llu, 0 ",workDB,inputPacket.address,inputPacket.address );
+	for (int i = 0 ; i < COMMAND_LENGHT; i++){
 		snprintf(buf,9,"%u",inputPacket.command[i]);
 		strcat(query, " ,");
 		strcat(query, buf);
@@ -51,7 +51,7 @@ int db::sendPacket(Packet inputPacket){
 }
 
 int db::selectQuery(void){
-    if (mysql_query(mysql,"SELECT * FROM commands_test ORDER BY priority;")){
+    if (mysql_query(mysql,"SELECT * FROM commands ORDER BY priority;")){
 	syslog(LOG_EMERG,"Can`t SELECT, %s",mysql_error(mysql));
 	return 1;
     }
@@ -71,7 +71,7 @@ int db::selectQuery(void){
 int db::deleteQuery(char *id){
 	char query[100];
 	memset (query,0,100);
-	snprintf(query, 99, "DELETE FROM commands_test WHERE id = %s LIMIT 1;", id);
+	snprintf(query, 99, "DELETE FROM commands WHERE id = %s LIMIT 1;", id);
 	if (mysql_query(mysql,query)){
         syslog(LOG_EMERG,"Can`t DELETE, %s",mysql_error(mysql)); 
         return 1;
@@ -97,10 +97,10 @@ Packet db::parsePacket(void){
 	int numFields = 0;
 	packet.address = 0;
 
-	memset(packet.command,0,32);
+	memset(packet.command,0,COMMAND_LENGHT);
 
 	sscanf(row[0], "%s", id);
-	sscanf(row[3], "%llu", &packet.address);
+	sscanf(row[2], "%llu", &packet.address);
 	numFields = mysql_num_fields(res) - 4;
 	for (int i = 0 ; i < numFields; i++){
 		sscanf(row[i+4],"%u",&packet.command[i]);
