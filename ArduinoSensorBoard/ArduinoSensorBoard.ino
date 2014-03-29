@@ -2,7 +2,9 @@
 #include "nRF24L01.h"
 #include "RF24.h"
 #include "DHT.h"
-#include "printf.h"
+#include <EEPROM.h>
+
+//#include "printf.h"
 
 #define DHTPIN 2 
 #define DHTTYPE DHT11 
@@ -40,7 +42,7 @@ void setup(void)
   for(int i = 0; i < sizeof(switchesBytes)-1; i++){
     pinMode(switchsPins[i], OUTPUT);  
   }
- 
+
 
 }
 
@@ -49,17 +51,27 @@ void loop(void)
   byte command[32] ;
   byte *ptr = &command[0];
   uint8_t pipenum = 0;
-   if (Serial.available() > 0) {  //если есть доступные данные
-        // считываем байт
-        incomingByte = Serial.read();
- 
-        // отсылаем то, что получили
-        Serial.println(incomingByte);
-        switch(incomingByte){
-        case 49: Serial.println("Test");
-        
-        }
+  
+  readSensors(ptr);
+  
+  if (Serial.available() > 0) {  //если есть доступные данные
+    // считываем байт
+    incomingByte = Serial.read();
+
+    // отсылаем то, что получили
+    Serial.println(incomingByte);
+    switch(incomingByte){
+    case 49: 
+      Serial.println("EEEPROM:");
+      for (int i=0;i<32;i++){
+        Serial.print(EEPROM.read(i));
+        Serial.print(" ");        
+      }
+
+      break;
     }
+  }
+  
   if ( radio.available(&pipenum))
   {
 
@@ -79,6 +91,7 @@ void loop(void)
     radio.write(ptr, sizeof(byte[32]));
     radio.startListening();
   }
+  
 
 
 }
@@ -86,7 +99,9 @@ void runCommand(byte *ptr)
 {
   Serial.println(ptr[0]);
   if(!ptr[0]){
-    readSensors(ptr);
+    for(int i =0; i < 32; i++){
+      ptr[i] = EEPROM.read(i);
+    }
   }
   else{
     writeSensors(ptr);
@@ -98,6 +113,7 @@ void readSensors(byte* ptr){
   readHum(ptr);
   readLum(ptr);
   readSwitch(ptr);
+  
 }
 
 void writeSensors(byte* ptr){
@@ -109,11 +125,10 @@ void writeSensors(byte* ptr){
 void readTemp(byte* ptr){
   float t = dht.readTemperature();
   if (!isnan(t)){
-    ptr[2] = (byte)t;
-    ptr[1] = 255;
+    EEPROM.write(2,(byte)t);
   }
   else{
-    ptr[1] = 13;      
+    EEPROM.write(32,13);
   }
 
 
@@ -121,25 +136,24 @@ void readTemp(byte* ptr){
 void readHum(byte* ptr){
   float h = dht.readHumidity();
   if (!isnan(h)){
-    ptr[3] = (byte)h;
-    ptr[1] = 255;
+    EEPROM.write(3,(byte)h);    
+    
   }
   else{
-    ptr[1] = 14;      
+    EEPROM.write(32,14);
+          
   }
 }
 void readLum(byte* ptr){
-  ptr[4] = analogRead(lightsSnsorPin);
-  ptr[1] = 255;
+  EEPROM.write(4,analogRead(lightsSnsorPin));
+  
 
 }
 
 void readSwitch(byte* ptr){
   for(int i = 0; i < sizeof(switchesBytes)-1; i++){
-    ptr[switchesBytes[i]]=switchStatus[i];
-
+     EEPROM.write(switchesBytes[i],switchStatus[i]);
   }
-  ptr[1] = 255;
 }
 
 void writeSwitch(byte* ptr){
@@ -149,6 +163,7 @@ void writeSwitch(byte* ptr){
     ptr[1] = 255;
   }
 }
+
 
 
 
