@@ -2,13 +2,14 @@
 #include "nRF24L01.h"
 #include "RF24.h"
 #include "DHT.h"
-//#include "printf.h"
+#include "printf.h"
 
 #define DHTPIN 2 
 #define DHTTYPE DHT11 
 
 RF24 radio(8,9);
 DHT dht(DHTPIN, DHTTYPE);
+byte incomingByte = 0;
 
 const uint64_t pipes[2] = { 
   0xF0F0F0F001LL, 0xF0F0F0F002LL };
@@ -28,7 +29,7 @@ void setup(void)
   dht.begin();
   radio.begin();
 
-  radio.setAutoAck(false);
+  radio.setAutoAck(true);
   radio.setRetries(15,15);
   radio.setPALevel(RF24_PA_MAX);
   radio.openReadingPipe(1,pipes[1]);
@@ -48,6 +49,17 @@ void loop(void)
   byte command[32] ;
   byte *ptr = &command[0];
   uint8_t pipenum = 0;
+   if (Serial.available() > 0) {  //если есть доступные данные
+        // считываем байт
+        incomingByte = Serial.read();
+ 
+        // отсылаем то, что получили
+        Serial.println(incomingByte);
+        switch(incomingByte){
+        case 49: Serial.println("Test");
+        
+        }
+    }
   if ( radio.available(&pipenum))
   {
 
