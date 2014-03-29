@@ -1,5 +1,5 @@
-#include "./mysql_db/mysql_db.h"
-#include "./rchome/rchome.h"
+#include "./lib/mysql_db/mysql_db.h"
+#include "./lib/rchome/rchome.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +10,7 @@ int main(){
 	//conn.init("localhost","test","123","RCHome");
 	Packet testpacket, test2packet;
 	FILE *fp = NULL;
-	fp = fopen("./logs/output.log", "a+");
+	fp = fopen("./log/output.log", "a+");
 	fprintf(fp, "init\n");
 	while(1){
 		memset(testpacket.command,0,COMMAND_LENGHT);
