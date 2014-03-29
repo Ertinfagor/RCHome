@@ -40,7 +40,7 @@ void setup(void)
   for(int i = 0; i < sizeof(switchesBytes)-1; i++){
     pinMode(switchsPins[i], OUTPUT);  
   }
-
+ 
 
 }
 
