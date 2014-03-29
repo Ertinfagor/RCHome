@@ -10,7 +10,7 @@ int main(){
 	//conn.init("localhost","test","123","RCHome");
 	Packet testpacket, test2packet;
 	FILE *fp = NULL;
-	fp = fopen("output.log", "a+");
+	fp = fopen("./logs/output.log", "a+");
 	fprintf(fp, "init\n");
 	while(1){
 		memset(testpacket.command,0,COMMAND_LENGHT);
@@ -40,3 +40,4 @@ int main(){
 
 	return 0;
 }
+
