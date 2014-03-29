@@ -9,6 +9,7 @@ radio.begin();
 radio.setRetries(15,15);
 radio.setChannel(1);
 radio.setPALevel(RF24_PA_MAX);
+radio.setAutoAck(true);
 radio.startListening();
 openlog( "RCHome", LOG_PID, LOG_DAEMON);
 }

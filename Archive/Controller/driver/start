@@ -2,5 +2,5 @@
 
 make daemonv2
 pkill daemonv2
-rm /Log.txt
+rm /log.txt
 ./daemonv2

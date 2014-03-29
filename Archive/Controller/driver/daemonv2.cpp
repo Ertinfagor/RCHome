@@ -113,7 +113,7 @@ close(STDIN_FILENO);
 close(STDOUT_FILENO);
 close(STDERR_FILENO);
 // Open a log file in write mode.
-fp = fopen ("Log.txt", "a+");
+fp = fopen ("log.txt", "a+");
 initRF24();
 char input[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 char output[32]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
