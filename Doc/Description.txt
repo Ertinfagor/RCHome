@@ -1,0 +1,10 @@
+Adressing:
+	BASE ADDRESS:	0xF0F0F0F000LL (Network Address)
+	SHORT ADDRESS:	1 (Host Address)
+	FULL ADDRESS:	0xF0F0F0F000LL + 1 = 0xF0F0F0F001LL
+Packet:
+
+0	-	Sender SHORT Address
+1	-	Command (0-GET, 1-SET)
+2	-	Result (OK - 255, ERROR - 0)
+3..31	-	Sensors values	

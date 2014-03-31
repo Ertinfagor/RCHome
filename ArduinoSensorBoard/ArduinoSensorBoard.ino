@@ -42,6 +42,8 @@ void setup(void)
   EEPROM.write(1,shortASBoardAddr);
   EEPROM.write(2,shortRCHomeAddr);
   
+  sensorValues[0]= EEPROM.read(1);
+  
   radio.openReadingPipe(1,ADDRBASE + EEPROM.read(1));
   radio.openWritingPipe(ADDRBASE + EEPROM.read(2));
   
