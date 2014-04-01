@@ -64,9 +64,7 @@ void loop(void)
   
   readSensors(ptr);
   if (isUpdate){
-    Serial.println("Update");
-    Serial.println(isUpdate);
-    sendUpdate();
+      sendUpdate();
   }
   
   if (Serial.available() > 0) {  //если есть доступные данные
@@ -94,11 +92,10 @@ void loop(void)
     while (!done)
     {
       done = radio.read( ptr, sizeof(byte[32]) );
-      //Serial.println("Reading");
       delay(10);
     }
     if (pipenum==1){
-      Serial.println(ptr[0]);
+      Serial.println(ptr[1]);
       runCommand(ptr);
     }
   }
@@ -119,7 +116,7 @@ void sendUpdate(){
 
 void runCommand(byte *ptr)
 {
-    if(!ptr[0]){
+    if(!ptr[1]){
     sendUpdate();
   }
   else{
@@ -129,23 +126,30 @@ void runCommand(byte *ptr)
            writeSwitch(i); 
        }
   }
-    Serial.println("Write");
-    sendUpdate();
+     sendUpdate();
   }
 
 }
-void readSensors(byte* ptr){
-  readTemp(ptr);
-  readHum(ptr);
-  readLum(ptr);
+
+
+
+
+
+
+
+
+void readSensors(void){
+  readTemp();
+  readHum();
+  readLum();
     
 }
 
 
-void readTemp(byte* ptr){
+void readTemp(void){
   float t = dht.readTemperature();
-  if ((!isnan(t)) && (t != sensorValues[2])){
-    sensorValues[2] = (int)t;
+  if ((!isnan(t)) && (t != sensorValues[3])){
+    sensorValues[3] = (int)t;
     isUpdate = 1;
     Serial.println("tupdate");
   }
@@ -153,19 +157,19 @@ void readTemp(byte* ptr){
 
 
 }
-void readHum(byte* ptr){
+void readHum(void){
   float h = dht.readHumidity();
-  if ((!isnan(h)) && (h != sensorValues[3])){
-      sensorValues[3] = (int)h;  
+  if ((!isnan(h)) && (h != sensorValues[4])){
+      sensorValues[4] = (int)h;  
       isUpdate = 1;
       Serial.println("hupdate");
   }
   
 }
-void readLum(byte* ptr){
+void readLum(void){
   int l = analogRead(lightsSnsorPin);
-  if(l!=sensorValues[4]){
-     sensorValues[4] = l;
+  if(l!=sensorValues[5]){
+     sensorValues[5] = l;
      isUpdate = 1; 
      Serial.println("lupdate");
   } 
