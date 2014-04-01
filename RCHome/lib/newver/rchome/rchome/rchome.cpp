@@ -8,8 +8,10 @@ RCHome::RCHome():radio("/dev/spidev0.0",8000000 , 25) {
 	radio.setChannel(1);
 	radio.setPALevel(RF24_PA_MAX);
 	radio.setAutoAck(true);
+	radio.openReadingPipe(1,0xF0F0F0F001LL);
 	radio.startListening();
 	openlog( "RCHome", LOG_PID, LOG_DAEMON);
+	baseAddr = 0xF0F0F0F000LL;
 }
 
 int RCHome::setBase(uint64_t base){
@@ -21,9 +23,9 @@ int RCHome::setBase(uint64_t base){
 uint64_t RCHome::getBase(void){
 return baseAddr;
 }
-  
 
-int RCHOME::setControllerSAddress(int sAddress){
+
+int RCHome::setControllerSAddress(int sAddress){
 	controllerSAddress = sAddress;
 	radio.stopListening();
 	radio.openReadingPipe(1,baseAddr+sAddress);
@@ -32,26 +34,27 @@ int RCHOME::setControllerSAddress(int sAddress){
 	return 0;
 }
 
-int RCHOME::getControllerSAddress(void){
+int RCHome::getControllerSAddress(void){
 	return controllerSAddress;
 }
 
-void RCHOME::setDestinationAddress(int sAddress){
+void RCHome::setDestinationAddress(int sAddress){
 	radio.stopListening();
 	radio.openWritingPipe(baseAddr+sAddress);
 	radio.startListening();
-}  
+}
 
-int RCHOME::send(char* input, char* output){
+int RCHome::send(char* input, char* output){
 	memset(output,0,COMMAND_LENGHT);
 	setDestinationAddress(input[0]);
+	printf("%u",input[0]);
 	bool timeout = false;
 	radio.stopListening();
 	bool ok = radio.write( input, sizeof(char[COMMAND_LENGHT]) );
 	if (!ok){
 		__msleep(10);
 		syslog(LOG_ERR, "Can`t send packet");
-		return;
+		return 1;
 	}
 	else{
 		syslog(LOG_NOTICE, "Packet sended, wait for response...");
@@ -68,17 +71,17 @@ int RCHOME::send(char* input, char* output){
 
 	if ( timeout ){
 		syslog(LOG_ERR, "Timeout send packet");
-		return;
+		return 2;
 	}
 	else{
 		radio.read( output, sizeof(char[COMMAND_LENGHT]) );
 		syslog(LOG_NOTICE, "Packet recieved");
-		return;
+		return 0;
 	}
 }
 
 
-int RCHOME::listen(char* output){
+int RCHome::listen(char* output){
 	memset(output,0,COMMAND_LENGHT);
 	if (radio.available()){
 		radio.read( output, sizeof(char[COMMAND_LENGHT]) );
@@ -86,3 +89,5 @@ int RCHOME::listen(char* output){
 	}
 	return 0;
 }
+
+
