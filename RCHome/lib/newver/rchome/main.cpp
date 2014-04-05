@@ -7,8 +7,6 @@ int main(){
 	char inputm[32];
         char outputm[32];
  	
-	memset(inputm,0,COMMAND_LENGHT);
-        memset(outputm,0,COMMAND_LENGHT);
 	
 	char* input = inputm;
 	char* output = outputm;
@@ -21,18 +19,18 @@ int main(){
 		memset(output,0,COMMAND_LENGHT);
 
 		input[0] = 2;
-		usleep(1000);
+		sleep(100);
 		printf("Send\n");
 
 		for (int i = 0; i < COMMAND_LENGHT; i++){
-			printf("%u", input[i]);
+			printf("%d", input[i]);
 		}
 		printf("\n");
 
 		nrf->send(input,output);
 		printf("Output:\n");
 		for (int i = 0; i < COMMAND_LENGHT; i++){
-			printf("%u", output[i]);
+			printf("%d", output[i]);
 			}
 			printf("\n");
 		}

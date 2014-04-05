@@ -47,7 +47,6 @@ void RCHome::setDestinationAddress(int sAddress){
 int RCHome::send(char* input, char* output){
 	memset(output,0,COMMAND_LENGHT);
 	setDestinationAddress(input[0]);
-	printf("%u",input[0]);
 	bool timeout = false;
 	radio.stopListening();
 	bool ok = radio.write( input, sizeof(char[COMMAND_LENGHT]) );
