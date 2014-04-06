@@ -17,4 +17,3 @@ uint64_t		1	-	Source FULL Address
 char			2	-	Command (0-GET, 1-SET)
 char			3	-	Result (OK - 255, ERROR - 0)
 char			4..31	-	Sensors values
-2000000028033030000000000000000000
