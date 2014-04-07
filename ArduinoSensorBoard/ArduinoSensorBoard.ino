@@ -12,7 +12,7 @@
 
 byte serialIncomingByte = 0;
 
-int sensorValues[32] = {};
+byte sensorValues[32] = {};
 
 int rwBytes[] = {
   10};
@@ -62,7 +62,7 @@ void loop(void)
   byte *ptr = &command[0];
   uint8_t pipenum = 0;
   
-  readSensors(ptr);
+  readSensors();
   if (isUpdate){
       sendUpdate();
   }
