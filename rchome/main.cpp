@@ -19,7 +19,7 @@ int main(){
 		memset(output,0,COMMAND_LENGHT);
 
 		input[0] = 2;
-		sleep(100);
+		//sleep(100);
 		printf("Send\n");
 
 		for (int i = 0; i < COMMAND_LENGHT; i++){
