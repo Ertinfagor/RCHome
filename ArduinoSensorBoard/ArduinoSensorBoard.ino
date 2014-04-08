@@ -9,10 +9,13 @@
 #define DHTPIN 2 
 #define DHTTYPE DHT11 
 #define ADDRBASE 0xF0F0F0F000LL
+#define IRQPIN 0
+
+volatile int state = LOW;
 
 byte serialIncomingByte = 0;
 
-int sensorValues[32] = {};
+byte sensorValues[32] = {};
 
 int rwBytes[] = {
   10};
@@ -52,6 +55,8 @@ void setup(void)
   for(int i = 0; i < sizeof(rwBytes)-1; i++){
     pinMode(rwPins[i], OUTPUT);  
   }
+  pinMode(IRQPIN, OUTPUT);
+  attachInterrupt(2, nrfRecieve, CHANGE);
 
 
 }
@@ -62,7 +67,7 @@ void loop(void)
   byte *ptr = &command[0];
   uint8_t pipenum = 0;
   
-  readSensors(ptr);
+  readSensors();
   if (isUpdate){
       sendUpdate();
   }
@@ -104,6 +109,18 @@ void loop(void)
 
 }
 
+void nrfRecieve(){
+bool tx_ok;
+bool tx_fail;
+bool rx_ready;
+
+radio.whatHappened(tx_ok,tx_fail,rx_ready);
+Serial.println("IRQ1 ");
+if(rx_ready){
+  Serial.println("IRQ ");
+}
+
+}
 void sendUpdate(){
     isUpdate = 0;
     radio.stopListening();
