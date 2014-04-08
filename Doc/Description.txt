@@ -9,11 +9,3 @@ L1 Packet:
 2	-	Command (0-GET, 1-SET)
 3	-	Result (OK - 255, ERROR - 0)
 4..31	-	Sensors values
-
-L2 Packet:	
-
-uint64_t		0	-	Destination FULL Address
-uint64_t		1	-	Source FULL Address
-char			2	-	Command (0-GET, 1-SET)
-char			3	-	Result (OK - 255, ERROR - 0)
-char			4..31	-	Sensors values
